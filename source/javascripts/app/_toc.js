@@ -31,26 +31,28 @@
 
     var recacheHeights = function() {
       headerHeights = {};
-      pageHeight = $(document).height();
+      pageHeight = $(".content-body").height();
       windowHeight = $(window).height();
 
       $toc.find(tocLinkSelector).each(function() {
         var targetId = $(this).attr('href');
         if (targetId[0] === "#") {
-          headerHeights[targetId] = $(targetId).offset().top;
+          headerHeights[targetId] = $(targetId).position().top;
         }
       });
     };
 
     var refreshToc = function() {
-      var currentTop = $(document).scrollTop() + scrollOffset;
+      var currentTop = $(".content-body").scrollTop() + scrollOffset;
 
+      /*
       if (currentTop + windowHeight >= pageHeight) {
         // at bottom of page, so just select last header by making currentTop very large
         // this fixes the problem where the last header won't ever show as active if its content
         // is shorter than the window height
         currentTop = pageHeight + 1000;
       }
+      */
 
       var best = null;
       for (var name in headerHeights) {
@@ -76,6 +78,12 @@
         $best.siblings(tocListSelector).addClass("active");
         $toc.find(tocListSelector).filter(":not(.active)").slideUp(150);
         $toc.find(tocListSelector).filter(".active").slideDown(150);
+
+        /*
+        if (window.history.replaceState) {
+          window.history.replaceState(null, "", best);
+        }
+        */
         // TODO remove classnames
         document.title = $best.data("title") + " – " + originalTitle;
       }
@@ -100,7 +108,7 @@
         }, 0);
       });
 
-      $(window).scroll(debounce(refreshToc, 200));
+      $(".content-body").scroll(debounce(refreshToc, 200));
       $(window).resize(debounce(recacheHeights, 200));
     };
 
